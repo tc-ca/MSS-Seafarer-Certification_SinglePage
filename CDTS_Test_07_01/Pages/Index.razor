@@ -1,0 +1,253 @@
+﻿@inject ILanguageContainerService languageContainer
+@inject CDTS_Test_07_01.Services.UserPreference userPreference
+@inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
+@page "/"
+@page "/en"
+@page "/fr"
+<nav aria-label="progress" class="step-indicator">
+    <ul class="steps">
+        <li class="@step1Class">
+            @languageContainer.Keys["APPLICANT_DETAILS"]
+        </li>
+        <li class="@step2Class">
+            @languageContainer.Keys["MAILING_ADDRESS"]<span class="sr-only">not completed</span>
+        </li>
+        <li class="@step3Class">
+            @languageContainer.Keys["IDENTITY_DOCUMENTS"]<span class="sr-only">not completed</span>
+        </li>
+        <li class="@step4Class">
+            @languageContainer.Keys["REMARKS_AND_SIGNATURE"]<span class="sr-only">not completed</span>
+        </li>
+    </ul>
+</nav>
+
+<DisclaimerTag @bind-IsVisible="Page1Visible"
+               @bind-IsVisible:event="IsVisibleChanged"></DisclaimerTag>
+<PersonalInfoTag PersonalInformation="application.PersonalInformation"
+                 @bind-IsVisible="Page2Visible"
+                 @bind-IsVisible:event="IsVisibleChanged"></PersonalInfoTag>
+<AddressTag Address="application.Address"
+            @bind-IsVisible="Page3Visible"
+            @bind-IsVisible:event="IsVisibleChanged"></AddressTag>
+<IdentityDocumentsTag @bind-IsVisible="Page4Visible"
+                      @bind-IsVisible:event="IsVisibleChanged"></IdentityDocumentsTag>
+<SignatureTag @bind-IsVisible="Page5Visible"
+              @bind-IsVisible:event="IsVisibleChanged"></SignatureTag>
+<button class="btn btn-primary" @onclick="OnClickChangeTags">@languageContainer.Keys["Next"]</button>
+
+
+@code
+{
+    public int pageCounter = 0;
+
+    public string step1Class;
+    public string step2Class;
+    public string step3Class;
+    public string step4Class;
+
+
+    [Parameter]
+    public bool Page1Visible { get; set; }
+    [Parameter]
+    public bool Page2Visible { get; set; }
+    [Parameter]
+    public bool Page3Visible { get; set; }
+    [Parameter]
+    public bool Page4Visible { get; set; }
+    [Parameter]
+    public bool Page5Visible { get; set; }
+
+    private string CurrentLanguage { get; set; }
+
+    private CdnApplication application { get; set; }
+
+
+
+    protected override void OnInitialized()
+    {
+        application = new CdnApplication();
+
+
+        var current_url = navigationManager.Uri;
+
+        if (IsFrenchURL(current_url))
+        {
+            CurrentLanguage = "French";
+            languageContainer.SetLanguage(System.Globalization.CultureInfo.GetCultureInfo("fr-CA"));
+            userPreference.LanguagePreference = "French";
+        }
+        else
+        {
+            CurrentLanguage = "English";
+            languageContainer.SetLanguage(System.Globalization.CultureInfo.GetCultureInfo("en-CA"));
+            userPreference.LanguagePreference = "English";
+        }
+
+        JSRuntime.InvokeVoidAsync("ChangeLanguageLinkText", CurrentLanguage);
+
+        pageCounter = userPreference.CurrentPageIndex;
+        SetDefaultPage();
+    }
+
+    private void OnClickChangeTags()
+    {
+        if (pageCounter == 0)
+        {
+            Page1Visible = false;
+            Page2Visible = true;
+            Page3Visible = false;
+            Page4Visible = false;
+
+            step1Class = "active";
+
+        }
+        if (pageCounter == 1)
+        {
+            Page1Visible = false;
+            Page2Visible = false;
+            Page3Visible = true;
+            Page4Visible = false;
+
+            step1Class = "complete";
+            step2Class = "active";
+
+        }
+        if (pageCounter == 2)
+        {
+            Page1Visible = false;
+            Page2Visible = false;
+            Page3Visible = false;
+            Page4Visible = true;
+
+            step1Class = "complete";
+            step2Class = "complete";
+            step3Class = "active";
+
+        }
+        if (pageCounter == 3)
+        {
+            Page1Visible = false;
+            Page2Visible = false;
+            Page3Visible = false;
+            Page4Visible = false;
+            Page5Visible = true;
+
+            step1Class = "complete";
+            step2Class = "complete";
+            step3Class = "complete";
+            step4Class = "active";
+
+        }
+
+        if (pageCounter == 4)
+        {
+            Page1Visible = true;
+            Page2Visible = false;
+            Page3Visible = false;
+            Page4Visible = false;
+            Page5Visible = false;
+
+            step1Class = "complete";
+            step2Class = "complete";
+            step3Class = "complete";
+            step4Class = "complete";
+
+        }
+
+        pageCounter++;
+
+        if (pageCounter > 4)
+            pageCounter = 0;
+
+        userPreference.CurrentPageIndex = pageCounter;
+
+    }
+
+    private void SetDefaultPage()
+    {
+        if (userPreference.CurrentPageIndex == 0)
+        {
+            Page1Visible = true;
+            Page2Visible = false;
+            Page3Visible = false;
+            Page4Visible = false;
+            Page5Visible = false;
+
+            step1Class = "active";
+        }
+
+        if (userPreference.CurrentPageIndex == 1)
+        {
+
+            Page1Visible = false;
+            Page2Visible = true;
+            Page3Visible = false;
+            Page4Visible = false;
+            Page5Visible = false;
+
+            step1Class = "active";
+        }
+
+        if (userPreference.CurrentPageIndex == 2)
+        {
+
+            Page1Visible = false;
+            Page2Visible = false;
+            Page3Visible = true;
+            Page4Visible = false;
+            Page5Visible = false;
+
+            step1Class = "complete";
+            step2Class = "active";
+        }
+        if (userPreference.CurrentPageIndex == 3)
+        {
+
+            Page1Visible = false;
+            Page2Visible = false;
+            Page3Visible = false;
+            Page4Visible = true;
+            Page5Visible = false;
+
+            step1Class = "complete";
+            step2Class = "complete";
+            step3Class = "active";
+        }
+        if (userPreference.CurrentPageIndex == 4)
+        {
+
+            Page1Visible = false;
+            Page2Visible = false;
+            Page3Visible = false;
+            Page4Visible = false;
+            Page5Visible = true;
+
+            step1Class = "complete";
+            step2Class = "complete";
+            step3Class = "complete";
+            step4Class = "active";
+        }
+
+
+    }
+
+    private bool IsFrenchURL(string url)
+    {
+        bool isFrench = false;
+        if (url != null)
+        {
+            int length = url.Length;
+            int startIndexOfFR = length - 2;
+
+
+            var lastTwoLetters = url.Substring(startIndexOfFR, 2);
+            if (lastTwoLetters == "fr")
+            {
+                isFrench = true;
+            }
+        }
+
+        return isFrench;
+    }
+}

@@ -1,0 +1,44 @@
+﻿@inject ILanguageContainerService languageContainer
+<div style="display: @visibilityStyle;">
+    <h3>@languageContainer.Keys["UploadElectronicSignature"]</h3>
+</div>
+
+@code
+{
+
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged
+    {
+
+        set
+        {
+            if (IsVisible)
+            {
+                visibilityStyle = "block";
+            }
+            else
+            {
+                visibilityStyle = "none";
+            }
+        }
+    }
+
+    private string visibilityStyle { get; set; }
+
+    protected override void OnInitialized()
+    {
+
+        if (IsVisible)
+        {
+            visibilityStyle = "block";
+        }
+        else
+        {
+            visibilityStyle = "none";
+        }
+    }
+
+}

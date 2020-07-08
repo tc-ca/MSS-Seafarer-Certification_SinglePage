@@ -1,0 +1,79 @@
+﻿@inject ILanguageContainerService languageContainer
+@using CDTS_Test_07_01.Model
+<div style="display: @visibilityStyle;">
+    <div class="form-group">
+        <label for="fname">@languageContainer.Keys["Givennames"]</label>
+        <input type="text" id="fname" name="fname" @bind="PersonalInformation.FirstName" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="lname">@languageContainer.Keys["Surname"]</label>
+        <input type="text" id="lname" name="lname" @bind="PersonalInformation.LastName" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="lname">@languageContainer.Keys["Initials"]</label>
+        <input type="text" id="initial" name="initial" @bind="PersonalInformation.Initial" class="form-control">
+    </div>
+    <div>
+        <label for="lname">@languageContainer.Keys["DateOfBirth"]</label>
+        <input type="text" id="DOB" name="DOB" @bind="PersonalInformation.DateOfBirth" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="lname">@languageContainer.Keys["Nationality"]</label>
+        <input type="text" id="nationality" name="nationality" @bind="PersonalInformation.Nationality" class="form-control">
+    </div>
+    <div class="form-group">
+        <input type="radio" id="language1" name="language" value="English">
+        <label for="English">English</label><br>
+        <input type="radio" id="language2" name="language" value="Français">
+        <label for="French">Français</label><br>
+    </div>
+
+</div>
+
+@code
+{
+
+    [Parameter]
+    public PersonalInformation PersonalInformation { get; set; }
+
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged
+    {
+
+        set
+        {
+            if (IsVisible)
+            {
+                visibilityStyle = "block";
+            }
+            else
+            {
+                visibilityStyle = "none";
+            }
+        }
+    }
+
+    private string visibilityStyle { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (PersonalInformation == null)
+        {
+            PersonalInformation = new PersonalInformation();
+        }
+
+        if (IsVisible)
+        {
+            visibilityStyle = "block";
+        }
+        else
+        {
+            visibilityStyle = "none";
+        }
+    }
+
+
+}
