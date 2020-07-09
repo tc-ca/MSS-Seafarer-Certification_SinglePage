@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace CDTS_Test_07_01.Services
+namespace CDN_Application.Services
 {
     public class CustomRequestCultureProvider : RequestCultureProvider
     {

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Localization;
 
 
-namespace CDTS_Test_07_01.Middleware
+namespace CDN_Application.Middleware
 {
     public class PageSettingsMiddleware
     {
@@ -21,7 +21,7 @@ namespace CDTS_Test_07_01.Middleware
 
         public async Task InvokeAsync(HttpContext context, ModelAccessor modelAccessor)
         {
-            //add page settings like: Modified Date, Breadcrumbs, Culture, Title etc
+            //add page settings like: Modified Date, Breadcrumbs, Culture, Title etc.
             modelAccessor.Model.DateModified = DateTime.Now.Date;
             modelAccessor.Model.HeaderTitle = "Transport Canada";
             List<Breadcrumb> breadcrumbs = new List<Breadcrumb>();

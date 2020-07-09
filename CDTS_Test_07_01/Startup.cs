@@ -9,16 +9,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using GoC.WebTemplate.Components.Core.Services;
-using CDTS_Test_07_01.Middleware;
+using CDN_Application.Middleware;
 using AKSoftware.Localization.MultiLanguages;
 using System.Reflection;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
-using CDTS_Test_07_01.Services;
+using CDN_Application.Services;
 
 
 
-namespace CDTS_Test_07_01
+namespace CDN_Application
 {
     public class Startup
     {

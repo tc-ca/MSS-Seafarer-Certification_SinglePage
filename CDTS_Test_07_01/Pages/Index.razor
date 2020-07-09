@@ -1,5 +1,5 @@
 ﻿@inject ILanguageContainerService languageContainer
-@inject CDTS_Test_07_01.Services.UserPreference userPreference
+@inject CDN_Application.Services.UserPreference userPreference
 @inject NavigationManager navigationManager
 @inject IJSRuntime JSRuntime
 @page "/"
@@ -9,229 +9,156 @@
     <h1>@languageContainer.Keys["ApplicationName"]</h1>
 <nav aria-label="progress" class="step-indicator">
     <ul class="steps">
-        <li class="@step1Class">
+        <li class="@this.StepClasses[0]">
             @languageContainer.Keys["APPLICANT_DETAILS"]
         </li>
-        <li class="@step2Class">
+        <li class="@this.StepClasses[1]">
             @languageContainer.Keys["MAILING_ADDRESS"]<span class="sr-only">not completed</span>
         </li>
-        <li class="@step3Class">
+        <li class="@this.StepClasses[2]">
             @languageContainer.Keys["IDENTITY_DOCUMENTS"]<span class="sr-only">not completed</span>
         </li>
-        <li class="@step4Class">
+        <li class="@this.StepClasses[3]">
             @languageContainer.Keys["REMARKS_AND_SIGNATURE"]<span class="sr-only">not completed</span>
         </li>
     </ul>
 </nav>
 
-<DisclaimerTag @bind-IsVisible="Page1Visible"
+<DisclaimerTag @bind-IsVisible="this.VisiblePages[0]"
                @bind-IsVisible:event="IsVisibleChanged"></DisclaimerTag>
 <PersonalInfoTag PersonalInformation="application.PersonalInformation"
-                 @bind-IsVisible="Page2Visible"
+                 @bind-IsVisible="this.VisiblePages[1]"
                  @bind-IsVisible:event="IsVisibleChanged"></PersonalInfoTag>
 <AddressTag Address="application.Address"
-            @bind-IsVisible="Page3Visible"
+            @bind-IsVisible="this.VisiblePages[2]"
             @bind-IsVisible:event="IsVisibleChanged"></AddressTag>
-<IdentityDocumentsTag @bind-IsVisible="Page4Visible"
+<IdentityDocumentsTag @bind-IsVisible="this.VisiblePages[3]"
                       @bind-IsVisible:event="IsVisibleChanged"></IdentityDocumentsTag>
-<SignatureTag @bind-IsVisible="Page5Visible"
+<SignatureTag @bind-IsVisible="this.VisiblePages[4]"
               @bind-IsVisible:event="IsVisibleChanged"></SignatureTag>
 <button class="btn btn-primary" @onclick="OnClickChangeTags">@languageContainer.Keys["Next"]</button>
 
 
 @code
 {
+    private readonly int MAX_PAGE_COUNTER = 4;
     public int pageCounter = 0;
 
-    public string step1Class;
-    public string step2Class;
-    public string step3Class;
-    public string step4Class;
-
+    [Parameter]
+    public bool[] VisiblePages { get; set; } = new bool[5];
 
     [Parameter]
-    public bool Page1Visible { get; set; }
-    [Parameter]
-    public bool Page2Visible { get; set; }
-    [Parameter]
-    public bool Page3Visible { get; set; }
-    [Parameter]
-    public bool Page4Visible { get; set; }
-    [Parameter]
-    public bool Page5Visible { get; set; }
+    public string[] StepClasses { get; set; } = new string[4];
 
     private string CurrentLanguage { get; set; }
 
     private CdnApplication application { get; set; }
 
-
-
     protected override void OnInitialized()
     {
         application = new CdnApplication();
-
 
         var current_url = navigationManager.Uri;
 
         if (IsFrenchURL(current_url))
         {
-            CurrentLanguage = "French";
-            languageContainer.SetLanguage(System.Globalization.CultureInfo.GetCultureInfo("fr-CA"));
-            userPreference.LanguagePreference = "French";
+            this.setupFrenchLanguage();
         }
         else
         {
-            CurrentLanguage = "English";
-            languageContainer.SetLanguage(System.Globalization.CultureInfo.GetCultureInfo("en-CA"));
-            userPreference.LanguagePreference = "English";
+            this.setupEnglishLanguage();
         }
 
         JSRuntime.InvokeVoidAsync("ChangeLanguageLinkText", CurrentLanguage);
 
-        pageCounter = userPreference.CurrentPageIndex;
-        SetDefaultPage();
+        this.pageCounter = userPreference.CurrentPageIndex;
+        this.SetDefaultVisiblePage();
+    }
+
+    private void setupFrenchLanguage()
+    {
+        this.CurrentLanguage = "French";
+        languageContainer.SetLanguage(System.Globalization.CultureInfo.GetCultureInfo("fr-CA"));
+        userPreference.LanguagePreference = "French";
+    }
+
+    private void setupEnglishLanguage()
+    {
+        this.CurrentLanguage = "English";
+        languageContainer.SetLanguage(System.Globalization.CultureInfo.GetCultureInfo("en-CA"));
+        userPreference.LanguagePreference = "English";
     }
 
     private void OnClickChangeTags()
     {
-        if (pageCounter == 0)
+        if(this.isFirstPage())
         {
-            Page1Visible = false;
-            Page2Visible = true;
-            Page3Visible = false;
-            Page4Visible = false;
-
-            step1Class = "active";
-
-        }
-        if (pageCounter == 1)
-        {
-            Page1Visible = false;
-            Page2Visible = false;
-            Page3Visible = true;
-            Page4Visible = false;
-
-            step1Class = "complete";
-            step2Class = "active";
-
-        }
-        if (pageCounter == 2)
-        {
-            Page1Visible = false;
-            Page2Visible = false;
-            Page3Visible = false;
-            Page4Visible = true;
-
-            step1Class = "complete";
-            step2Class = "complete";
-            step3Class = "active";
-
-        }
-        if (pageCounter == 3)
-        {
-            Page1Visible = false;
-            Page2Visible = false;
-            Page3Visible = false;
-            Page4Visible = false;
-            Page5Visible = true;
-
-            step1Class = "complete";
-            step2Class = "complete";
-            step3Class = "complete";
-            step4Class = "active";
-
+            this.resetStepClasses();
         }
 
-        if (pageCounter == 4)
+        this.resetVisiblePages();
+        this.VisiblePages[this.pageCounter] = true;
+
+        var stepClassCounter = this.pageCounter - 1;
+        this.markCompletedPages();
+
+        if (this.isStepperCurrentlyTheActivePage(stepClassCounter))
         {
-            Page1Visible = true;
-            Page2Visible = false;
-            Page3Visible = false;
-            Page4Visible = false;
-            Page5Visible = false;
-
-            step1Class = "complete";
-            step2Class = "complete";
-            step3Class = "complete";
-            step4Class = "complete";
-
+            this.StepClasses[stepClassCounter] = "active";
         }
 
-        pageCounter++;
-
-        if (pageCounter > 4)
-            pageCounter = 0;
-
-        userPreference.CurrentPageIndex = pageCounter;
-
+        this.increasePageCounter();
     }
 
-    private void SetDefaultPage()
+    private void markCompletedPages()
     {
-        if (userPreference.CurrentPageIndex == 0)
+        for (var i = 0; i < this.pageCounter && i < this.StepClasses.Length; i++)
         {
-            Page1Visible = true;
-            Page2Visible = false;
-            Page3Visible = false;
-            Page4Visible = false;
-            Page5Visible = false;
+            this.StepClasses[i] = "complete";
+        }
+    }
 
-            step1Class = "active";
+    private bool isFirstPage()
+    {
+        return this.pageCounter == 0;
+    }
+
+    private void increasePageCounter()
+    {
+        pageCounter++;
+
+        if (this.pageCounter > this.MAX_PAGE_COUNTER)
+        {
+            this.pageCounter = 0;
         }
 
-        if (userPreference.CurrentPageIndex == 1)
+        userPreference.CurrentPageIndex = pageCounter;
+    }
+
+    private bool isStepperCurrentlyTheActivePage(int stepCounter)
+    {
+        return stepCounter < this.StepClasses.Length && stepCounter >= 0;
+    }
+
+    private void resetStepClasses()
+    {
+        for (var i = 0; i < this.StepClasses.Length; i++)
         {
-
-            Page1Visible = false;
-            Page2Visible = true;
-            Page3Visible = false;
-            Page4Visible = false;
-            Page5Visible = false;
-
-            step1Class = "active";
+            this.StepClasses[i] = "";
         }
+    }
 
-        if (userPreference.CurrentPageIndex == 2)
+    private void resetVisiblePages()
+    {
+        for(var i = 0; i < this.VisiblePages.Length; i++)
         {
-
-            Page1Visible = false;
-            Page2Visible = false;
-            Page3Visible = true;
-            Page4Visible = false;
-            Page5Visible = false;
-
-            step1Class = "complete";
-            step2Class = "active";
+            this.VisiblePages[i] = false;
         }
-        if (userPreference.CurrentPageIndex == 3)
-        {
+    }
 
-            Page1Visible = false;
-            Page2Visible = false;
-            Page3Visible = false;
-            Page4Visible = true;
-            Page5Visible = false;
-
-            step1Class = "complete";
-            step2Class = "complete";
-            step3Class = "active";
-        }
-        if (userPreference.CurrentPageIndex == 4)
-        {
-
-            Page1Visible = false;
-            Page2Visible = false;
-            Page3Visible = false;
-            Page4Visible = false;
-            Page5Visible = true;
-
-            step1Class = "complete";
-            step2Class = "complete";
-            step3Class = "complete";
-            step4Class = "active";
-        }
-
-
+    private void SetDefaultVisiblePage()
+    {
+        this.VisiblePages[0] = true;
     }
 
     private bool IsFrenchURL(string url)
